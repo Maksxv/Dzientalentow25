@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zgłoszenie uczestnika na dzień talentów</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+        .hidden {
+            display: none;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Zgłoszenie uczestnika</h2>
+        
+        <!-- Formularz zgłoszeniowy -->
+        <div id="participant-form">
+            <input type="text" id="firstName" placeholder="Imię" required>
+            <input type="text" id="lastName" placeholder="Nazwisko" required>
+            <input type="text" id="class" placeholder="Klasa" required>
+            <button onclick="submitParticipant()">Zgłoś</button>
+        </div>
+
+        <!-- Zawartość dla koordynatora -->
+        <div id="coord-container" class="hidden">
+            <h3>Lista uczestników:</h3>
+            <table id="participants-list">
+                <thead>
+                    <tr>
+                        <th>Imię</th>
+                        <th>Nazwisko</th>
+                        <th>Klasa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Lista uczestników będzie tutaj -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Login koordynatora -->
+        <div id="coord-login">
+            <input type="password" id="coord-password" placeholder="Wprowadź hasło koordynatora" />
+            <button onclick="verifyCoordinator()">Zaloguj się</button>
+        </div>
+    </div>
+
+    <script>
+        const coordPassword = 'Dzień talentów 2025';  // Hasło koordynatora (możesz zmienić)
+        const participants = JSON.parse(localStorage.getItem('participants')) || [];
+
+        // Sprawdzenie, czy użytkownik jest koordynatorem
+        function verifyCoordinator() {
+            const enteredPassword = document.getElementById('coord-password').value;
+            if (enteredPassword === coordPassword) {
+                document.getElementById('coord-login').classList.add('hidden');
+                document.getElementById('coord-container').classList.remove('hidden');
+                loadParticipants();
+            } else {
+                alert('Błędne hasło!');
+            }
+        }
+
+        // Ładowanie listy uczestników
+        function loadParticipants() {
+            const tableBody = document.getElementById('participants-list').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+            participants.forEach((participant, index) => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = participant.firstName;
+                row.insertCell(1).textContent = participant.lastName;
+                row.insertCell(2).textContent = participant.class;  // Wyświetlanie klasy
+            });
+        }
+
+        // Dodawanie uczestnika
+        function submitParticipant() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const className = document.getElementById('class').value;  // Pobieranie wartości klasy
+            
+            if (firstName && lastName && className) {
+                const newParticipant = { firstName, lastName, class: className };  // Dodanie klasy do obiektu uczestnika
+                participants.push(newParticipant);
+                localStorage.setItem('participants', JSON.stringify(participants));
+                alert('Zgłoszenie przyjęte!');
+                loadParticipants();
+                document.getElementById('firstName').value = '';
+                document.getElementById('lastName').value = '';
+                document.getElementById('class').value = '';  // Czyszczenie pola klasy
+            } else {
+                alert('Proszę uzupełnić wszystkie dane!');
+            }
+        }
+
+        // Wyświetlanie formularza dla uczestników
+        document.getElementById('participant-form').classList.remove('hidden');
+    </script>
+
+</body>
+</html>
